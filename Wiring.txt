@@ -1,0 +1,14 @@
+*** Components Wiring ***
+
+* DHT22 Sensor *
+Source: https://learn.adafruit.com/dht/connecting-to-a-dhtxx-sensor
+
+Connect a 10 KOhm resistor between VCC and DOUT
+VCC DOUT NC GND
+
+* DS3231 RTC *
+SDA -> Arduino Analog (SDA pin)
+SCL -> Arduino Analog (SCL pin)
+VCC -> 5V
+GND -> GND
+SQW -> Arduino D2 (Needs to be an interrupt capable pin)
