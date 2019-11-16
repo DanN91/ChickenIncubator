@@ -10,33 +10,54 @@
 ESP8266WebServer server;
 
 const char ssid[] = "Home";
-const char password[] = "ToDo";
+const char password[] = "CDBD*D00-C!93-!!$0";
 
 char webpage[] PROGMEM = R"=====(
 <html>
 <head></head>
 <body>
- TODO
+ <h1>ESP8266 Simple Web Server</h1>
+ <h2>LED State: <span id="led-state" style="color:red">__</span></h2>
+ <button onclick="toggleLEDState()">Toggle LED</button>
 </body>
 <script>
- TODO
+ function readLEDState()
+ {
+     var xhr = new XMLHttpRequest();
+     var url = "/ledState";
+
+     xhr.onreadystatechange = function(){
+         if (this.readyState == 4 && this.status == 200){
+             document.getElementById("led-state").innerHTML = this.responseText;
+         }
+     };
+
+     xhr.open("GET", url, true);
+     xhr.send();
+ }
+
+function toggleLEDState()
+{
+     var xhr = new XMLHttpRequest();
+     var url = "/toggle";
+     xhr.open("GET", url, true);
+     xhr.send();
+}
+
+document.addEventListener('DOMContentLoaded', readLEDState, false);
+
 </script>
 </html>
 )=====";
 
-void toggleLED()
-{
-    const byte LED_PIN = 2;
-    static bool isOn = digitalRead(LED_PIN);
-    digitalWrite(LED_PIN, (isOn) ? LOW : HIGH);
-    isOn = !isOn;
-}
+const byte LED_PIN = 2;
 
 void setup()
 {
     // initialize
     WiFi.begin(ssid, password);
     Serial.begin(115200);
+    pinMode(LED_PIN, OUTPUT);
     
     // wait for connection
     while (WiFi.status() != WL_CONNECTED)
@@ -47,12 +68,12 @@ void setup()
     
     // connected
     Serial.println(" Connected.");
-    Serial.print("IP Address: ";
+    Serial.print("IP Address: ");
     Serial.println(WiFi.localIP());
     
     // route handling
-    server.on("/", [](){ server.send(200, "text/plain", "<h1>Hello Daniel!</h1>"); });
-    server.on("/page", [](){ server.send_P(200, "text/plain", webpage); });
+    server.on("/", [](){ server.send_P(200, "text/html", webpage); });
+    server.on("/ledState", getLEDState);
     server.on("/toggle", toggleLED);
     server.begin();
 }
@@ -60,4 +81,16 @@ void setup()
 void loop()
 {
     server.handleClient();
+}
+
+void toggleLED()
+{
+    digitalWrite(LED_PIN, digitalRead(LED_PIN) ? LOW : HIGH);
+    server.send(200);
+}
+
+void getLEDState()
+{
+    String ledState = digitalRead(LED_PIN) ? "ON" : "OFF";
+    server.send(200, "text/plain", ledState);
 }
