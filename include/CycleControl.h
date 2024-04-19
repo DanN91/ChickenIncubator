@@ -57,7 +57,7 @@ private:
 
     // changes state based on the current state
     void ChangeState(bool reset = false);
-    void ClearParameters();
+    void ClearCycle();
 
     // read from persistence at initialization
     CycleState m_state = CycleState::None;

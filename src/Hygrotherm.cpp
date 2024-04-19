@@ -99,4 +99,7 @@ void Hygrotherm::Unregister()
     m_cooler.Off();
     m_heater.Off();
     m_humidifier.Off();
+
+    Serial.print("All switchers off: ");
+    Serial.println(m_heater.IsOn());
 }

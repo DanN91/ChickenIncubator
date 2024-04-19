@@ -200,9 +200,7 @@ void CycleControl::ChangeState(bool reset)
 {
     if (reset)
     {
-        m_state = CycleState::None;
-        ClearParameters();
-        m_hygrotherm.Unregister();
+        Reset();
     }
 
 #if SERIAL_DEBUG
@@ -283,9 +281,10 @@ void CycleControl::ChangeState(bool reset)
     m_hygrotherm.Register();
 }
 
-void CycleControl::ClearParameters()
+void CycleControl::ClearCycle()
 {
     // 0 all parameters
+    m_state = CycleState::None;
     m_settings.Clear(Settings::CycleState, sizeof(m_state));
     m_settings.Clear(Settings::ChangeStateDate, sizeof(DateTM));
     m_settings.Clear(Settings::ChangeStateTime, sizeof(TimeTM));
@@ -319,9 +318,6 @@ bool CycleControl::SetHygrothermParameters(CycleState state)
 
 void CycleControl::Reset()
 {
-    m_state = CycleState::None;
     m_hygrotherm.Unregister();
-
-    ClearParameters();
-    m_settings.Set(Settings::CycleState, static_cast<uint8_t>(m_state));
+    ClearCycle();
 }
