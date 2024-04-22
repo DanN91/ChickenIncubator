@@ -112,5 +112,6 @@ void loop()
   button.HandleEvents();
 
   cycle.Handle();
+
   delay(300);
 }

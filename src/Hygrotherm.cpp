@@ -46,24 +46,22 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
         {
             const auto value = m_sensor.Temperature();
 
-#ifdef SERIAL_DEBUG
-            Serial.print("T: ");
-            Serial.println(value);
-#endif // SERIAL_DEBUG
-
-            if (value < m_temperature.Min)
+            // temperature in range
+            if (value > m_temperature.Min && value < m_temperature.Max)
+            {
+                m_heater.Off();
+                m_cooler.Off();
+            }
+            // increase temperature
+            else if (value < m_temperature.Min)
             {
                 m_heater.On();
                 m_cooler.On();
             }
+            // decrease temperature
             else if (value > m_temperature.Max)
             {
-                m_heater.Off();
-                m_cooler.On(); // bring the temperature down
-            }
-            else // in range: min < value < max
-            {
-                m_cooler.Off();
+                m_cooler.On();
             }
 
             break;
@@ -73,23 +71,48 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
         {
             const auto value = m_sensor.Humidity();
 
-#ifdef SERIAL_DEBUG
-            Serial.print("H: ");
-            Serial.println(value);
-#endif // SERIAL_DEBUG
-
-            if (value < m_humidity.Min)
+            // humidity in range
+            if (value > m_humidity.Min && value < m_humidity.Max)
+            {
+                m_humidifier.Off();
+                if (!m_heater.IsOn())
+                {
+                    m_cooler.Off();
+                }
+            }
+            // increase humidity
+            else if (value < m_humidity.Min)
             {
                 m_humidifier.On();
             }
+            // decrease humidity
             else if (value > m_humidity.Max)
             {
-                m_humidifier.Off();
+                m_cooler.On();
             }
 
             break;
         }
     }
+
+#ifdef SERIAL_DEBUG
+    Serial.print("T: ");
+    Serial.print(m_sensor.Temperature());
+    Serial.print(" | H: ");
+    Serial.print(m_sensor.Humidity());
+
+    Serial.print(" [");
+    Serial.print("Heater: ");
+    Serial.print(m_heater.IsOn());
+    Serial.print(" | ");
+    Serial.print("Cooler: ");
+    Serial.print(m_cooler.IsOn());
+    Serial.print(" | ");
+    Serial.print("Humidifier: ");
+    Serial.print(m_humidifier.IsOn());
+    Serial.println("]");
+#endif // SERIAL_DEBUG
+
 }
 
 void Hygrotherm::Unregister()
@@ -99,7 +122,4 @@ void Hygrotherm::Unregister()
     m_cooler.Off();
     m_heater.Off();
     m_humidifier.Off();
-
-    Serial.print("All switchers off: ");
-    Serial.println(m_heater.IsOn());
 }
