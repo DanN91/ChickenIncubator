@@ -101,7 +101,6 @@ void setup()
   cycle.Register(); // observes the button
 
 #ifdef SERIAL_DEBUG
-  Serial.println("Initialized");
   cycle.PrintParameters();
 #endif // SERIAL_DEBUG
 }
@@ -112,5 +111,6 @@ void loop()
   button.HandleEvents();
 
   cycle.Handle();
+
   delay(300);
 }
