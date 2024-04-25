@@ -15,7 +15,7 @@ Parameter<float> LOCKDOWN_TEMPERATURE { 36.1, 37.2 };
 Parameter<uint8_t> LOCKDOWN_HUMIDITY { 70, 75 };
 
 CycleControl::CycleControl(IObservable<ButtonState> &button, DS3231& clock, SettingsManager& settings, Hygrotherm& hygrotherm)
-        : IObserver(ButtonState::Held, button)
+        : IObserver(ButtonState::Held | ButtonState::Released, button)
         , m_clock(clock)
         , m_settings(settings)
         , m_hygrotherm(hygrotherm)
@@ -62,6 +62,17 @@ void CycleControl::OnEvent(ButtonState state)
 #endif // SERIAL_DEBUG
 
         ChangeState(CycleState::Incubation);
+    }
+    else if (state == ButtonState::Released)
+    {
+#ifdef SERIAL_DEBUG
+        Serial.println("Released: Next state");
+#endif // SERIAL_DEBUG
+
+        if (!m_state)
+            return;
+        
+        m_state->Transition();
     }
 }
 

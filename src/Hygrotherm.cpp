@@ -112,7 +112,6 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
     Serial.print(m_humidifier.IsOn());
     Serial.println("]");
 #endif // SERIAL_DEBUG
-
 }
 
 void Hygrotherm::Unregister()

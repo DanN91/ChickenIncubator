@@ -8,7 +8,6 @@ public:
     LockdownState(ICycleContext& context, Hygrotherm& hygrotherm, SettingsManager& settings, const DS3231* clock);
     virtual ~LockdownState() = default;
 
-private:
     // ICycleState
     void Transition() override;
 };

@@ -112,5 +112,5 @@ void loop()
 
   cycle.Handle();
 
-  delay(300);
+  delay(100);
 }

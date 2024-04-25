@@ -8,7 +8,6 @@ public:
     IdleState(ICycleContext& context, Hygrotherm& hygrotherm, SettingsManager& settings);
     virtual ~IdleState() = default;
 
-private:
     // ICycleState
     void Transition() override;
 };

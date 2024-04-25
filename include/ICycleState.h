@@ -15,6 +15,9 @@ public:
 
     void Handle(const DS3231& clock);
 
+    // Interface specific to state
+    virtual void Transition() = 0;
+
     // non-copyable & non-movable
     ICycleState(const ICycleState&) = delete;
     ICycleState& operator=(const ICycleState&) = delete;
@@ -28,8 +31,4 @@ protected:
     ICycleContext& m_context;
     Hygrotherm& m_hygrotherm;
     SettingsManager& m_settings;
-
-private:
-    // Interface shared by all states
-    virtual void Transition() = 0;
 };
