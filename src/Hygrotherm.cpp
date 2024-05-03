@@ -43,96 +43,80 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
     const auto temperature = m_sensor.Temperature();
     const auto humidity = m_sensor.Humidity();
 
-    switch (parameter)
+    // error
+    if (temperature == 0.0 || humidity == 0.0)
     {
-        case DHT22Mask::Temperature:
+        m_heater.Off();
+        m_cooler.Off();
+        m_humidifier.Off();
+
+        return;
+    }
+
+    // Temperature
+    const float TEMPERATURE_THRESHOLD = 0.2;
+    // temperature in range
+    if (m_temperature.Min < temperature && temperature <= m_temperature.Max)
+    {
+        m_heater.Off();
+        m_cooler.Off();
+    }
+    // decrease temperature
+    else if (m_temperature.Max < temperature)
+    {
+        m_heater.Off();
+        m_cooler.On();
+    }
+    // increase temperature
+    else if (temperature < (m_temperature.Min - TEMPERATURE_THRESHOLD))
+    {
+        m_heater.On();
+        m_cooler.On();
+    }
+
+    // humidity in range
+    const uint8_t midRange = (m_humidity.Min + m_humidity.Max) / 2;
+    if (midRange <= humidity && humidity <= m_humidity.Max)
+    {
+        m_humidifier.Off();
+        if (!m_heater.IsOn())
         {
-            // error
-            if (temperature == 0.0)
-            {
-                m_heater.Off();
-                m_cooler.Off();
-                break;
-            }
-
-            // temperature in range
-            if (m_temperature.Min <= temperature && temperature <= m_temperature.Max)
-            {
-                m_heater.Off();
-                m_cooler.Off();
-            }
-            // increase temperature
-            else if (temperature < m_temperature.Min)
-            {
-                m_heater.On();
-                m_cooler.On();
-            }
-            // decrease temperature
-            else if (temperature > m_temperature.Max)
-            {
-                m_cooler.On();
-                m_heater.Off();
-            }
-
-            break;
+            m_cooler.Off();
         }
-
-        case DHT22Mask::Humidity:
-        {
-            // error
-            if (humidity == 0)
-            {
-                m_humidifier.Off();
-                break;
-            }
-
-            const uint8_t midRange = (m_humidity.Min + m_humidity.Max) / 2;
-
-            // humidity in range
-            if (midRange <= humidity && humidity <= m_humidity.Max)
-            {
-                m_humidifier.Off();
-                if (!m_heater.IsOn())
-                {
-                    m_cooler.Off();
-                }
-            }
-            // increase humidity
-            else if (humidity < m_humidity.Min)
-            {
-                m_humidifier.On();
-            }
-            // decrease humidity
-            else if (humidity > m_humidity.Max)
-            {
-                m_cooler.On();
-            }
-
-            break;
-        }
+    }
+    // increase humidity
+    else if (humidity < m_humidity.Min)
+    {
+        m_humidifier.On();
+    }
+    // decrease humidity
+    else if (humidity > m_humidity.Max)
+    {
+        m_cooler.On();
+        m_humidifier.Off();
     }
 
 #ifdef SERIAL_DEBUG
-    Serial.print("T: ");
+    Serial.print("P: ");
+    Serial.print(parameter == DHT22Mask::Temperature ? "Temperature" : "Humidity");
+    Serial.print(" | T: ");
     Serial.print(temperature);
     Serial.print(" | H: ");
     Serial.print(humidity);
-    Serial.print(" | Mid H: ");
-    Serial.print((m_humidity.Min + m_humidity.Max) / 2);
 
-    Serial.print("T Range: ");
-    Serial.print(m_temperature.Min);
-    Serial.print(" - ");
-    Serial.print(m_temperature.Max);
+    // Serial.print(" | T Range: ");
+    // Serial.print(m_temperature.Min);
+    // Serial.print(" - ");
+    // Serial.print(m_temperature.Max);
 
     Serial.print(" ~ [");
-    Serial.print("Heater: ");
+    Serial.print("H: ");
     Serial.print(m_heater.IsOn());
     Serial.print(" | ");
-    Serial.print("Cooler: ");
+    Serial.print("F: ");
     Serial.print(m_cooler.IsOn());
     Serial.print(" | ");
-    Serial.print("Humidifier: ");
+    Serial.print("HUM: ");
     Serial.print(m_humidifier.IsOn());
     Serial.println("]");
 #endif // SERIAL_DEBUG

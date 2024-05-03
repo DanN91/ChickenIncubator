@@ -76,7 +76,7 @@ AT24C32 storage;
 SettingsManager settings(storage, GetSettingAddress);
 
 PushButton button(Hardware::BUTTON_PIN);
-Hygrotherm hygrotherm(dhtSensor, heater, heater, humidifier);
+Hygrotherm hygrotherm(dhtSensor, cooler, heater, humidifier);
 
 CycleControl cycle(button, clock, settings, hygrotherm);
 
@@ -89,7 +89,7 @@ void setup()
   storage.Initialize();
 
   heater.Initialize();
-  heater.Initialize();
+  cooler.Initialize();
   humidifier.Initialize();
 
   dhtSensor.Initialize();
