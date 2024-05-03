@@ -40,14 +40,15 @@ bool Hygrotherm::Humidity(const Parameter<uint8_t>& range)
 
 void Hygrotherm::OnEvent(DHT22Mask parameter)
 {
+    const auto temperature = m_sensor.Temperature();
+    const auto humidity = m_sensor.Humidity();
+
     switch (parameter)
     {
         case DHT22Mask::Temperature:
         {
-            const auto value = m_sensor.Temperature();
-
             // error
-            if (value == 0.0)
+            if (temperature == 0.0)
             {
                 m_heater.Off();
                 m_cooler.Off();
@@ -55,21 +56,22 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
             }
 
             // temperature in range
-            if (value > m_temperature.Min && value < m_temperature.Max)
+            if (m_temperature.Min <= temperature && temperature <= m_temperature.Max)
             {
                 m_heater.Off();
                 m_cooler.Off();
             }
             // increase temperature
-            else if (value < m_temperature.Min)
+            else if (temperature < m_temperature.Min)
             {
                 m_heater.On();
                 m_cooler.On();
             }
             // decrease temperature
-            else if (value > m_temperature.Max)
+            else if (temperature > m_temperature.Max)
             {
                 m_cooler.On();
+                m_heater.Off();
             }
 
             break;
@@ -77,17 +79,17 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
 
         case DHT22Mask::Humidity:
         {
-            const auto value = m_sensor.Humidity();
-
             // error
-            if (value == 0)
+            if (humidity == 0)
             {
                 m_humidifier.Off();
                 break;
             }
 
+            const uint8_t midRange = (m_humidity.Min + m_humidity.Max) / 2;
+
             // humidity in range
-            if (value > m_humidity.Min && value < m_humidity.Max)
+            if (midRange <= humidity && humidity <= m_humidity.Max)
             {
                 m_humidifier.Off();
                 if (!m_heater.IsOn())
@@ -96,12 +98,12 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
                 }
             }
             // increase humidity
-            else if (value < m_humidity.Min)
+            else if (humidity < m_humidity.Min)
             {
                 m_humidifier.On();
             }
             // decrease humidity
-            else if (value > m_humidity.Max)
+            else if (humidity > m_humidity.Max)
             {
                 m_cooler.On();
             }
@@ -112,11 +114,18 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
 
 #ifdef SERIAL_DEBUG
     Serial.print("T: ");
-    Serial.print(m_sensor.Temperature());
+    Serial.print(temperature);
     Serial.print(" | H: ");
-    Serial.print(m_sensor.Humidity());
+    Serial.print(humidity);
+    Serial.print(" | Mid H: ");
+    Serial.print((m_humidity.Min + m_humidity.Max) / 2);
 
-    Serial.print(" [");
+    Serial.print("T Range: ");
+    Serial.print(m_temperature.Min);
+    Serial.print(" - ");
+    Serial.print(m_temperature.Max);
+
+    Serial.print(" ~ [");
     Serial.print("Heater: ");
     Serial.print(m_heater.IsOn());
     Serial.print(" | ");
