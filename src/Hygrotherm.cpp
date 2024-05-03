@@ -46,6 +46,14 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
         {
             const auto value = m_sensor.Temperature();
 
+            // error
+            if (value == 0.0)
+            {
+                m_heater.Off();
+                m_cooler.Off();
+                break;
+            }
+
             // temperature in range
             if (value > m_temperature.Min && value < m_temperature.Max)
             {
@@ -70,6 +78,13 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
         case DHT22Mask::Humidity:
         {
             const auto value = m_sensor.Humidity();
+
+            // error
+            if (value == 0)
+            {
+                m_humidifier.Off();
+                break;
+            }
 
             // humidity in range
             if (value > m_humidity.Min && value < m_humidity.Max)
