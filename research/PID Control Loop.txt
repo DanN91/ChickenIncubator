@@ -1,0 +1,17 @@
+// PID Control Loop
+// Source: https://www.youtube.com/watch?v=OqvrYNJvtaU&t=7s
+/*
+    kP = Proportional Gain | kI = Integral Gain | kD = Derivative Gain
+    DT = Difference in time between control cycles
+    Err = Error | SP = Set Point | PV = Process Value | pERR = Previous Error
+
+    // Calculation
+    Err = SP - PV
+    Proportional = kP * Err
+    Integral = Integral + (kI * (Err * DT))
+    Derivative = kD * ((Err - pErr) / DT)
+
+    Output = Proportional + Integral + Derivative
+*/
+
+* Temperature PID Control Loop *
