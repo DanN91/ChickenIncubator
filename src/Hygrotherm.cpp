@@ -2,12 +2,13 @@
 
 #include <DHT22Sensor.h>
 
-Hygrotherm::Hygrotherm(DHT22Sensor& sensor, Switcher& cooler, Switcher& heater, Switcher& humidifier)
+Hygrotherm::Hygrotherm(DHT22Sensor& sensor, Switcher& cooler, Switcher& heater, Switcher& humidifier, ShowTime printTime)
     : IObserver(static_cast<DHT22Mask>(DHT22Mask::Temperature | DHT22Mask::Humidity), sensor)
     , m_sensor(sensor)
     , m_cooler(cooler)
     , m_heater(heater)
     , m_humidifier(humidifier)
+    , m_showTime(printTime)
 {
 }
 
@@ -97,17 +98,26 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
     }
 
 #ifdef SERIAL_DEBUG
-    Serial.print("P: ");
-    Serial.print(parameter == DHT22Mask::Temperature ? "Temperature" : "Humidity");
-    Serial.print(" | T: ");
+    if (m_showTime)
+    {
+        Serial.print("[ ");
+        m_showTime();
+        Serial.print(" ] ");
+    }
+
+    Serial.print("T: ");
     Serial.print(temperature);
+    if (parameter == DHT22Mask::Temperature)
+    {
+        Serial.print(" * ");
+    }
+
     Serial.print(" | H: ");
     Serial.print(humidity);
-
-    // Serial.print(" | T Range: ");
-    // Serial.print(m_temperature.Min);
-    // Serial.print(" - ");
-    // Serial.print(m_temperature.Max);
+    if (parameter == DHT22Mask::Humidity)
+    {
+        Serial.print(" * ");
+    }
 
     Serial.print(" ~ [");
     Serial.print("H: ");

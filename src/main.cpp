@@ -75,8 +75,13 @@ uint16_t GetSettingAddress(Settings setting)
 AT24C32 storage;
 SettingsManager settings(storage, GetSettingAddress);
 
+void showTime()
+{
+  Serial.print(clock.GetTime().GetTimeFormatted());
+}
+
 PushButton button(Hardware::BUTTON_PIN);
-Hygrotherm hygrotherm(dhtSensor, cooler, heater, humidifier);
+Hygrotherm hygrotherm(dhtSensor, cooler, heater, humidifier, showTime);
 
 CycleControl cycle(button, clock, settings, hygrotherm);
 

@@ -7,6 +7,8 @@
 
 #include <DHT22Sensor.h>
 
+typedef void (*ShowTime)();
+
 template<typename T>
 struct Parameter
 {
@@ -26,7 +28,7 @@ struct Parameter
 class Hygrotherm final : public IObserver<DHT22Mask>
 {
 public:
-    Hygrotherm(DHT22Sensor& sensor, Switcher& cooler, Switcher& heater, Switcher& humidifier);
+    Hygrotherm(DHT22Sensor& sensor, Switcher& cooler, Switcher& heater, Switcher& humidifier, ShowTime printTime);
     ~Hygrotherm() = default;
 
     void Initialize();
@@ -47,4 +49,5 @@ private:
     Switcher& m_cooler;
     Switcher& m_heater;
     Switcher& m_humidifier;
+    ShowTime m_showTime = nullptr;
 };
