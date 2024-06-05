@@ -71,7 +71,7 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
     else if (temperature < (m_temperature.Min - TEMPERATURE_THRESHOLD))
     {
         m_heater.On();
-        m_cooler.On();
+        m_cooler.On(127);
     }
 
     // humidity in range
@@ -92,7 +92,7 @@ void Hygrotherm::OnEvent(DHT22Mask parameter)
     // decrease humidity
     else if (humidity > m_humidity.Max)
     {
-        m_cooler.On();
+        // m_cooler.On();
         m_humidifier.Off();
     }
 
