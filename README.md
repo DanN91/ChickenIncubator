@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Chicken Incubator project is designed to control the temperature and humidity for hatching chicken eggs. It is based on an Arduino setup and includes sensors and actuators to maintain the optimal conditions for incubation.
+The Chicken Incubator project is an Arduino-based system designed to control temperature and humidity for hatching chicken eggs. It uses sensors and actuators to maintain optimal incubation conditions, and employs a state machine to manage the incubation cycle. The project includes various components such as a DHT22 sensor, DS3231 real-time clock, AT24C32 for persistent storage, and a settings manager. It provides a comprehensive solution for automating the incubation process, ensuring precise environmental control for successful hatching.
 
 ## Classes
 
