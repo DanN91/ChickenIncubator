@@ -1,5 +1,7 @@
 #include "ICycleState.h"
 
+#include "Utils.h"
+
 ICycleState::ICycleState(ICycleContext& context, Hygrotherm& hygrotherm, SettingsManager& settings)
     : m_context(context)
     , m_hygrotherm(hygrotherm)
@@ -24,11 +26,7 @@ void ICycleState::Handle(const DS3231& clock)
     if (!(clock.GetDate() >= changeDate))
         return;
 
-#if SERIAL_DEBUG
-    Serial.print(clock.GetTime().GetTimeFormatted());
-    Serial.print(" | ");
-    Serial.println(clock.GetDate().GetDateFormatted());
-#endif // SERIAL_DEBUG
+    SerialDebug(clock.GetTime().GetTimeFormatted() + " | " + clock.GetDate().GetDateFormatted());
 
     TimeTM changeTime;
     if (!m_settings.Get(Settings::ChangeStateTime, changeTime))
@@ -47,22 +45,11 @@ bool ICycleState::ChangeStateOn(const DateTM& date, const TimeTM& time)
 
 bool ICycleState::SetHygrothermParameters(const Parameter<float>& temperature, const Parameter<uint8_t>& humidity) const
 {
-#ifdef SERIAL_DEBUG
-    Serial.print("T: ");
-    Serial.print(temperature.Min);
-    Serial.print(" - ");
-    Serial.print(temperature.Max);
-    Serial.print(" | H: ");
-    Serial.print(humidity.Min);
-    Serial.print(" - ");
-    Serial.println(humidity.Max);
-#endif // SERIAL_DEBUG
+    SerialDebug("T: " + String(temperature.Min) + " - " + String(temperature.Max) + " | H: " + String(humidity.Min) + " - " + String(humidity.Max));
 
     if (!m_hygrotherm.Temperature(temperature) || !m_hygrotherm.Humidity(humidity))
     {
-#ifdef SERIAL_DEBUG
-        Serial.println("ERROR: Could not set temperature and humidity for Hygrotherm.");
-#endif // SERIAL_DEBUG
+        SerialDebug("ERROR: Could not set temperature and humidity for Hygrotherm.");
         return false;
     }
 

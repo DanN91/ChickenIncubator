@@ -1,10 +1,25 @@
-// 
+/*
+ * Cycle Control
+ *
+ * This class manages the incubation cycle by observing button states and controlling the cycle state.
+ * It interacts with the DS3231 clock to keep track of time, the SettingsManager to retrieve and store
+ * configuration settings, and the Hygrotherm to monitor and control the temperature and humidity.
+ * The class implements the observer pattern to respond to button events and the state pattern to manage
+ * different cycle states. It uses the ICycleContext interface to allow state transitions and the IObserver
+ * interface to handle button state changes.
+ *
+ * The CycleControl class transitions between different states such as Idle, Incubation, and Lockdown,
+ * each represented by a specific state class (IdleState, IncubationState, LockdownState). These states
+ * are managed using the UniquePtr<ICycleState> to ensure proper resource management.
+ */
+
 #include <CycleControl.h>
 #include <Hygrotherm.h>
-
 #include <IdleState.h>
 #include <IncubationState.h>
 #include <LockdownState.h>
+
+#include <Utils.h>
 
 // Days 1-18
 Parameter<float> INCUBATION_TEMPERATURE { 37.5, 37.8 };
@@ -15,10 +30,10 @@ Parameter<float> LOCKDOWN_TEMPERATURE { 36.1, 37.2 };
 Parameter<uint8_t> LOCKDOWN_HUMIDITY { 70, 75 };
 
 CycleControl::CycleControl(IObservable<ButtonState> &button, DS3231& clock, SettingsManager& settings, Hygrotherm& hygrotherm)
-        : IObserver(ButtonState::Held | ButtonState::Released, button)
-        , m_clock(clock)
-        , m_settings(settings)
-        , m_hygrotherm(hygrotherm)
+    : IObserver(ButtonState::Held | ButtonState::Released, button)
+    , m_clock(clock)
+    , m_settings(settings)
+    , m_hygrotherm(hygrotherm)
 {
     // nothing
 }
@@ -37,10 +52,7 @@ bool CycleControl::Initialize()
     TimeTM changeTime;
     if (!m_settings.Get(Settings::ChangeStateDate, changeDate) || !m_settings.Get(Settings::ChangeStateTime, changeTime))
     {
-#ifdef SERIAL_DEBUG
-        Serial.println("Could not read Date and Time for Change State.");
-#endif // SERIAL_DEBUG
-
+        SerialDebug("Could not read Date and Time for Change State.");
         return false;
     }
 
@@ -57,17 +69,12 @@ void CycleControl::OnEvent(ButtonState state)
 {
     if (state == ButtonState::Held)
     {
-#ifdef SERIAL_DEBUG
-        Serial.println("Held: Cycle Reset");
-#endif // SERIAL_DEBUG
-
+        SerialDebug("Held: Cycle Reset");
         ChangeState(CycleState::Incubation);
     }
     else if (state == ButtonState::Released)
     {
-#ifdef SERIAL_DEBUG
-        Serial.println("Released: Next state");
-#endif // SERIAL_DEBUG
+        SerialDebug("Released: Next state");
 
         if (!m_state)
             return;
@@ -84,80 +91,59 @@ void CycleControl::Handle()
     m_state->Handle(m_clock);
 }
 
-#ifdef SERIAL_DEBUG
 void CycleControl::PrintParameters()
 {
-    Serial.println("* Cycle Parameters *");
+    SerialDebug("* Cycle Parameters *");
 
     TimeTM changeStateTime;
     if (!m_settings.Get(Settings::ChangeStateTime, changeStateTime))
     {
-        Serial.println("Error reading change time.");
+        SerialDebug("Error reading change time."); 
     }
 
     DateTM changeStateDate;
     if (!m_settings.Get(Settings::ChangeStateDate, changeStateDate))
     {
-        Serial.println("Error reading change date.");
+        SerialDebug("Error reading change date."); 
     }
 
     CycleState state;
     if (!m_settings.Get(Settings::CycleState, state))
     {
-        Serial.println("Error reading cycle state.");
+        SerialDebug("Error reading cycle state."); 
     }
 
-    Serial.print("State: ");
-    Serial.print(static_cast<uint8_t>(state));
-    Serial.print(" | ");
-    Serial.print(changeStateDate.GetDateFormatted());
-    Serial.print(" @ ");
-    Serial.println(changeStateTime.GetTimeFormatted());
+    SerialDebug("State: " + String(static_cast<uint8_t>(state)) + " | " + changeStateDate.GetDateFormatted() + " @ " + changeStateTime.GetTimeFormatted()); 
 
     /* Temperature & Humidity */
     Parameter<float> temperature;
     if (!m_settings.Get(Settings::IncubationTemperature, temperature))
     {
-        Serial.println("Error reading temperature.");
+        SerialDebug("Error reading temperature."); 
     }
 
     Parameter<uint8_t> humidity;
     if (!m_settings.Get(Settings::IncubationHumidity, humidity))
     {
-        Serial.println("Error reading humidity.");
+        SerialDebug("Error reading humidity."); 
     }
 
-    Serial.print("Incubation T: ");
-    Serial.print(temperature.Min);
-    Serial.print(" - ");
-    Serial.print(temperature.Max);
-    Serial.print(" | H: ");
-    Serial.print(humidity.Min);
-    Serial.print(" - ");
-    Serial.println(humidity.Max);
+    SerialDebug("Incubation T: " + String(temperature.Min) + " - " + String(temperature.Max) + " | H: " + String(humidity.Min) + " - " + String(humidity.Max)); 
 
     if (!m_settings.Get(Settings::LockdownTemperature, temperature))
     {
-        Serial.println("Error reading temperature.");
+        SerialDebug("Error reading temperature."); 
     }
 
     if (!m_settings.Get(Settings::LockdownHumidity, humidity))
     {
-        Serial.println("Error reading humidity.");
+        SerialDebug("Error reading humidity."); 
     }
 
-    Serial.print("Lockdown T: ");
-    Serial.print(temperature.Min);
-    Serial.print(" - ");
-    Serial.print(temperature.Max);
-    Serial.print(" | H: ");
-    Serial.print(humidity.Min);
-    Serial.print(" - ");
-    Serial.println(humidity.Max);
+    SerialDebug("Lockdown T: " + String(temperature.Min) + " - " + String(temperature.Max) + " | H: " + String(humidity.Min) + " - " + String(humidity.Max)); 
 
-    Serial.println("***");
+    SerialDebug("***"); 
 }
-#endif // SERIAL_DEBUG
 
 bool CycleControl::StoreParameters()
 {
@@ -169,11 +155,7 @@ bool CycleControl::StoreParameters()
 
 void CycleControl::ChangeState(CycleState state, bool doRestore)
 {
-#if SERIAL_DEBUG
-    Serial.print(doRestore ? "Restore" : "Change");
-    Serial.print(" State: ");
-    Serial.println(static_cast<uint8_t>(state));
-#endif // SERIAL_DEBUG
+    SerialDebug((doRestore ? "Restore" : "Change") + String(" State: ") + String(static_cast<uint8_t>(state))); 
 
     // Idle [ResetButton] -> Incubation [Time expires] -> Lockdown [Time expires] -> None
     switch (state)
@@ -198,9 +180,7 @@ void CycleControl::ChangeState(CycleState state, bool doRestore)
 
         default:
         {
-#ifdef SERIAL_DEBUG
-            Serial.println("ERROR: CycleState not handled");
-#endif // SERIAL_DEBUG
+            SerialDebug("ERROR: CycleState not handled"); 
         }
     }
 }

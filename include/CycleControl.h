@@ -1,16 +1,24 @@
 /*
  * Cycle Control
  *
- * #TODO:Description
-*/
+ * This class manages the incubation cycle by observing button states and
+ * controlling the cycle state. It interacts with the DS3231 clock to keep track
+ * of time, the SettingsManager to retrieve and store configuration settings,
+ * and the Hygrotherm to monitor and control the temperature and humidity.
+ *
+ * The class implements the observer pattern to respond to button events and the
+ * state pattern to manage different cycle states. It uses the ICycleContext
+ * interface to allow state transitions and the IObserver interface to handle
+ * button state changes.
+ */
 
 #pragma once
 
 #include <DS3231.h>
 #include <DateTM.h>
-#include <TimeTM.h>
-#include <SettingsManager.h>
 #include <Hygrotherm.h>
+#include <SettingsManager.h>
+#include <TimeTM.h>
 
 #include <ObserverPattern.h>
 #include <PushButtonMasks.h>
@@ -20,9 +28,7 @@
 #include <ICycleState.h>
 #include <UniquePtr.h>
 
-
-class CycleControl final : public IObserver<ButtonState>, public ICycleContext
-{
+class CycleControl final : public IObserver<ButtonState>, public ICycleContext {
 public:
     CycleControl(IObservable<ButtonState>& button, DS3231& clock, SettingsManager& settings, Hygrotherm& hygrotherm);
     ~CycleControl() = default;
@@ -37,9 +43,7 @@ public:
 
     void Handle();
 
-#ifdef SERIAL_DEBUG
     void PrintParameters();
-#endif // SERIAL_DEBUG
 
     // non-copyable & non-movable
     CycleControl(const CycleControl &) = delete;
