@@ -1,3 +1,11 @@
+/*
+ * Settings.h
+ *
+ * This file contains the definition of the GetSettingAddress function, which maps
+ * different settings to their respective memory addresses. It is used to retrieve
+ * the address of a specific setting in the settings storage.
+ */
+
 #pragma once
 
 #include <SettingsMasks.h>

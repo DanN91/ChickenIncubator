@@ -1,3 +1,12 @@
+/*
+ * Hardware.h
+ *
+ * This file defines the hardware configuration for the incubation system.
+ * It includes pin definitions for various components such as sensors, heaters,
+ * coolers, and buttons. The pin configurations are provided for different
+ * hardware setups.
+ */
+
 #pragma once
 
 #include <Arduino.h>

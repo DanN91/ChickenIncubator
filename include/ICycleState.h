@@ -1,3 +1,11 @@
+/*
+ * ICycleState.h
+ *
+ * This file defines the ICycleState interface, which represents a state in the
+ * incubation cycle. It provides the interface for state-specific behavior and
+ * state transitions. All specific cycle states inherit from this interface.
+ */
+
 #pragma once
 
 #include <SettingsManager.h>

@@ -1,3 +1,11 @@
+/*
+ * CycleTypes.h
+ *
+ * This file defines the CycleState enum, which represents the different states
+ * of the incubation cycle (Idle, Incubation, Lockdown). It also provides an
+ * operator to increment the cycle state.
+ */
+
 #pragma once
 
 #include <Arduino.h>

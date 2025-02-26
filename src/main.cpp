@@ -4,6 +4,22 @@
 
   Days 1-18: Temperature @ 37.5 - 37.8 Celsius | Humidity @ 50-55%
   Days 19-21: Temperature @ 36.1 - 37.2 Celsius | Humidity @ 70-75%
+
+  This program manages the incubation process for chicken eggs by controlling temperature and humidity.
+  It uses various sensors and actuators to maintain the required environment and tracks the incubation
+  cycle using a state machine.
+
+  The main components are:
+  - DHT22Sensor: Reads temperature and humidity.
+  - Switcher: Controls the heater, humidifier, and cooler.
+  - DS3231: Keeps track of time.
+  - AT24C32: Provides persistent storage for settings.
+  - SettingsManager: Manages configuration settings.
+  - PushButton: Handles user interaction.
+  - CycleControl: Manages the incubation cycle states.
+
+  The setup function initializes all components and registers the CycleControl as an observer of the button.
+  The loop function handles events from the DHT22 sensor and the button, and processes the incubation cycle.
 */
 
 #include <Arduino.h>

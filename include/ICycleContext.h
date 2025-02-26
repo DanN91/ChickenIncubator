@@ -1,3 +1,11 @@
+/*
+ * ICycleContext.h
+ *
+ * This file defines the ICycleContext interface, which provides the context for
+ * the cycle states. It allows states to change the current state of the cycle.
+ * All cycle context implementations inherit from this interface.
+ */
+
 #pragma once
 
 #include <CycleTypes.h>

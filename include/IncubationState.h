@@ -1,3 +1,11 @@
+/*
+ * IncubationState.h
+ *
+ * This file defines the IncubationState class, which represents the incubation phase
+ * of the incubation cycle. It inherits from the ICycleState interface and implements
+ * the Transition method to handle state transitions specific to the incubation phase.
+ */
+
 #pragma once
 
 #include "ICycleState.h"

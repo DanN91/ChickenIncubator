@@ -1,3 +1,11 @@
+/*
+ * Hygrotherm.h
+ *
+ * This file defines the Hygrotherm class, which is responsible for monitoring and
+ * controlling the temperature and humidity during the incubation cycle. It uses
+ * sensors and switchers to maintain the desired environmental conditions.
+ */
+
 #pragma once
 
 #include <Arduino.h>
@@ -28,7 +36,7 @@ struct Parameter
 class Hygrotherm final : public IObserver<DHT22Mask>
 {
 public:
-    Hygrotherm(DHT22Sensor& sensor, Switcher& cooler, Switcher& heater, Switcher& humidifier, ShowTime printTime);
+    Hygrotherm(DHT22Sensor& sensor, Switcher& cooler, Switcher& heater, Switcher& humidifier, ShowTime printTime = nullptr);
     ~Hygrotherm() = default;
 
     void Initialize();
