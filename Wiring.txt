@@ -6,6 +6,9 @@ Source: https://learn.adafruit.com/dht/connecting-to-a-dhtxx-sensor
 Connect a 10 KOhm resistor between VCC and DOUT
 VCC DOUT NC GND
 
+* PushButton *
+uses INPUT_PULLUP, so no need of an external 10k resistor
+
 * DS3231 RTC *
 SDA -> Arduino Analog (SDA pin)
 SCL -> Arduino Analog (SCL pin)
